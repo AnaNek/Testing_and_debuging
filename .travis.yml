@@ -26,3 +26,6 @@ jobs:
     - stage: "Tests"
       name: "Integration"
       script: python3 manage.py test tests/integration
+    - stage: "Tests"
+      name: "End to end"
+      script: python3 manage.py test tests/end_to_end
