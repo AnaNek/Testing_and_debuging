@@ -1,0 +1,58 @@
+version: '3.2'
+
+services:
+  postgres:
+    image: postgres:12
+    volumes:
+      - ./sql/001create_db.sql:/docker-entrypoint-initdb.d/001create_db.sql
+      - ./sql/002insert.sql:/docker-entrypoint-initdb.d/002insert.sql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=db_protein
+    ports:
+      - 5433:5432
+
+  testing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    command: ./run_tests.sh
+    
+  instance-1:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    command: python3 /app/backend/manage.py runserver 8000
+    ports:
+      - 8000:8000
+    depends_on:
+      - migration
+      - postgres
+
+  instance-2:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    command: python3 /app/backend/manage.py runserver 8001
+    ports:
+      - 8001:8001
+
+  instance-3:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    command: python3 /app/backend/manage.py runserver 8002
+    ports:
+      - 8002:8002
