@@ -1,0 +1,25 @@
+language: python
+services:
+  - postgresql
+env:
+  global:
+    - POSTGRES_PASSWORD=postgres
+python:
+  - "3.8"
+
+before_script:
+  - psql -c 'create database db_protein;' -U postgres
+  
+before_install:
+  - cd backend
+install:
+  - pip3 install -r requirements.txt
+
+jobs:
+  include:
+    - stage: "Build"
+      name: "Building app"
+      script: python3 manage.py migrate
+    - stage: "Tests"
+      name: "Unit"
+      script: python3 manage.py test tests/unit
